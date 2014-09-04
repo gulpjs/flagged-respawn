@@ -17,7 +17,7 @@ exports.execute = function execute (flags, argv) {
     argv = process.argv;
   }
   var args = reorder(flags, argv);
-  child = spawn(args[0], args.slice(1));
+  var child = spawn(args[0], args.slice(1));
   child.on('exit', function (code, signal) {
     process.on('exit', function () {
       if (signal) {
@@ -29,4 +29,6 @@ exports.execute = function execute (flags, argv) {
   });
   child.stdout.pipe(process.stdout);
   child.stderr.pipe(process.stderr);
+
+  return child;
 };
