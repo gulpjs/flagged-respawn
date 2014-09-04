@@ -1,7 +1,7 @@
 {
   "name": "flagged-respawn",
   "description": "A tool for respawning node binaries when special flags are present.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://github.com/tkellen/node-flagged-respawn",
   "author": {
     "name": "Tyler Kellen",
@@ -33,8 +33,8 @@
     "respawn flags"
   ],
   "devDependencies": {
-    "chai": "^1.9.1",
-    "mocha": "^1.21.4",
-    "v8flags": "^1.0.1"
+    "chai": "~1.9.1",
+    "mocha": "~1.21.4",
+    "v8flags": "~1.0.1"
   }
 }
