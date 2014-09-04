@@ -2,7 +2,6 @@ const spawn = require('child_process').spawn;
 const reorder = require('./lib/reorder');
 
 exports.needed = function needed (flags, argv) {
-  var shouldRespawn = false;
   if (!argv) {
     argv = process.argv;
   }
