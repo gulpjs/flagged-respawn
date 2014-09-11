@@ -17,21 +17,41 @@ Crap. The `--harmony` flag is in the wrong place! It should be applied to the **
 
 `['node', '--harmony', '/usr/local/bin/test', 'spec', 'tests.js']`
 
-Flagged-respawn solves this problem.
+Flagged-respawn fixes this problem and handles all the edge cases respawning creates, such as:
+- Providing a method to determine if a respawn is needed.
+- Piping stderr/stdout from the child into the parent.
+- Making the parent process exit with the same code as the child.
+- If the child is killed, making the parent exit with the same signal.
+
+To see it in action, clone this repository and run `npm install` / `npm run respawn` / `npm run nospawn`.
+
+## API
+
+*To support any flags available via `node --v8-options`, use [node-v8flags](https://github.com/tkelle/node-v8flags).*
+
+### needed(flags, argv)
+
+Returns true if any elements in the provided flags array are present in the argv array.  If argv is undefined, it will default to `process.argv`.
+
+### execute(flags, argv)
+
+Spawns a child process with argv re-ordered to apply the specified flags to node, rather than your program. If argv is undefined, it will default to `process.argv`.
 
 ## Sample Usage
+
 ```js
 #!/usr/bin/env node
 
 const flaggedRespawn = require('flagged-respawn');
 
-// get a list of all possible v8 flags to intercept
+// get a list of all possible v8 flags
 const v8flags = require('v8flags').fetch();
 
-// check to see if any defined flags are in the wrong position
-// if we didn't want to support all v8 flags, we could just as
-// easily do if (!flaggedRespawn.needed(['--harmony'])) instead.
-if (!flaggedRespawn.needed(v8flags)) {
+// check to see if any defined flags are in the wrong position.
+// if you don't want to support all v8 flags, manually specify
+// an array instead, e.g.:
+// flaggedRespawn.needed(['--harmony'])
+if (!flaggedRespawn.needed(v8flags, process.argv)) {
   // If we are here, no special flags were seen, or this
   // is the child process that our initial run spawned.
   console.log('Running!');
@@ -40,12 +60,11 @@ if (!flaggedRespawn.needed(v8flags)) {
   // wrong command. the above branch will be executed by the
   // child process this spawns.
   console.log('Respawning...');
-  flaggedRespawn.execute(v8flags);
+  flaggedRespawn.execute(v8flags, process.argv);
 }
 ```
 
-To see it in action, clone this repository and run `npm install` / `npm run respawn` / `npm run nospawn`.
-
 ## Release History
 
+* 2014-09-11 - v0.2.0 - for real now
 * 2014-09-04 - v0.1.1 - initial release

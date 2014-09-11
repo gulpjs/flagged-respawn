@@ -1,7 +1,14 @@
 const spawn = require('child_process').spawn;
 const reorder = require('./lib/reorder');
 
+var assertFlags = function (flags) {
+  if (!flags) {
+    throw new Error('You must specify flags to respawn with.');
+  }
+};
+
 exports.needed = function needed (flags, argv) {
+  assertFlags(flags);
   if (!argv) {
     argv = process.argv;
   }
@@ -9,9 +16,7 @@ exports.needed = function needed (flags, argv) {
 };
 
 exports.execute = function execute (flags, argv) {
-  if (!flags) {
-    throw new Error('You must specify flags to respawn with.');
-  }
+  assertFlags(flags);
   if (!argv) {
     argv = process.argv;
   }

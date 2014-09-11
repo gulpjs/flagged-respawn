@@ -1,7 +1,7 @@
 {
   "name": "flagged-respawn",
   "description": "A tool for respawning node binaries when special flags are present.",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "homepage": "https://github.com/tkellen/node-flagged-respawn",
   "author": {
     "name": "Tyler Kellen",
@@ -21,9 +21,9 @@
     }
   ],
   "scripts": {
-    "respawn": "node bin/example --harmony test",
-    "nospawn": "node bin/example test",
-    "test": "mocha -R spec test.js"
+    "respawn": "node test/bin/respawner --harmony test",
+    "nospawn": "node test/bin/respawner test",
+    "test": "mocha -R spec test"
   },
   "main": "index.js",
   "engines": {
