@@ -6,7 +6,7 @@ const flags = ['--harmony'];
 if (!flaggedRespawn.needed(flags)) {
   setTimeout(function() {
     process.exit();
-  }, 100);
+  }, 1000);
 } else {
   var child = flaggedRespawn.execute(flags);
   child.kill('SIGHUP');
