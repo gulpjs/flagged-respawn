@@ -25,18 +25,6 @@ Flagged-respawn fixes this problem and handles all the edge cases respawning cre
 
 To see it in action, clone this repository and run `npm install` / `npm run respawn` / `npm run nospawn`.
 
-## API
-
-*To support any flags available via `node --v8-options`, use [node-v8flags](https://github.com/tkellen/node-v8flags).*
-
-### needed(flags, argv)
-
-Returns true if any elements in the provided flags array are present in the argv array.  If argv is undefined, it will default to `process.argv`.
-
-### execute(flags, argv)
-
-Spawns a child process with argv re-ordered to apply the specified flags to node, rather than your program. If argv is undefined, it will default to `process.argv`.
-
 ## Sample Usage
 
 ```js
@@ -44,27 +32,25 @@ Spawns a child process with argv re-ordered to apply the specified flags to node
 
 const flaggedRespawn = require('flagged-respawn');
 
-// get a list of all possible v8 flags
+// get a list of all possible v8 flags for the running version of node
 const v8flags = require('v8flags').fetch();
 
-// check to see if any defined flags are in the wrong position.
-// if you don't want to support all v8 flags, manually specify
-// an array instead, e.g.:
-// flaggedRespawn.needed(['--harmony'])
-if (!flaggedRespawn.needed(v8flags, process.argv)) {
-  // If we are here, no special flags were seen, or this
-  // is the child process that our initial run spawned.
-  console.log('Running!');
-} else {
-  // if we are here, there are special flags applied to the
-  // wrong command. the above branch will be executed by the
-  // child process this spawns.
-  console.log('Respawning...');
-  flaggedRespawn.execute(v8flags, process.argv);
-}
+flaggedRespawn(v8flags, process.argv, function (ready, child) {
+  if (ready) {
+    console.log('Running!');
+    // your cli code here
+  } else {
+    console.log('Special flags found, respawning.');
+  }
+  if (process.pid !== child.pid) {
+    console.log('Respawned to PID:', child.pid);
+  }
+});
+
 ```
 
 ## Release History
 
-* 2014-09-11 - v0.2.0 - for real now
+* 2014-09-11 - v0.3.0 - for real this time
+* 2014-09-11 - v0.2.0 - cleanup
 * 2014-09-04 - v0.1.1 - initial release

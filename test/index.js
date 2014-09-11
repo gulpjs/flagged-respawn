@@ -5,33 +5,24 @@ const reorder = require('../lib/reorder');
 const flaggedRespawn = require('../');
 
 describe('flaggedRespawn', function () {
+  var flags = ['--harmony', '--use_strict']
 
   describe('reorder', function () {
 
     it('should re-order args, placing special flags first', function () {
       var needsRespawn = ['node', 'file.js', '--flag', '--harmony', 'command'];
       var noRespawnNeeded = ['node', 'bin/flagged-respawn', 'thing'];
-      expect(reorder(['--harmony'], needsRespawn))
+      expect(reorder(flags, needsRespawn))
         .to.deep.equal(['node', '--harmony', 'file.js', '--flag', 'command']);
-      expect(reorder(['--harmony'], noRespawnNeeded))
+      expect(reorder(flags, noRespawnNeeded))
         .to.deep.equal(noRespawnNeeded);
     });
 
-  });
-
-  describe('needed', function () {
-    it('should throw if no flags are specified', function () {
-      expect(function () { flaggedRespawn.needed(); }).to.throw;
+    it('should ignore special flags when they are in the correct position', function () {
+      var args = ['node', '--harmony', 'file.js', '--flag'];
+      expect(reorder(flags, reorder(flags, args))).to.deep.equal(args);
     });
 
-    it('should return false if no specified flags are in process.argv', function () {
-      expect(flaggedRespawn.needed(['--harmony'])).to.be.false;
-    });
-
-    it('should return true if any specified flags are in process.argv', function () {
-      // the -R comes from npm test
-      expect(flaggedRespawn.needed(['-R'])).to.be.true;
-    });
   });
 
   describe('execute', function () {
@@ -40,9 +31,13 @@ describe('flaggedRespawn', function () {
       expect(function () { flaggedRespawn.execute(); }).to.throw;
     });
 
+    it('should throw if no argv is specified', function () {
+      expect(function () { flaggedRespawn.execute(flags); }).to.throw;
+    });
+
     it('should respawn and pipe stderr/stdout to parent', function (done) {
       exec('node ./test/bin/respawner.js --harmony', function (err, stdout, stderr) {
-        expect(stdout).to.equal('respawning.\nrunning.\n');
+        expect(stdout.replace(/[0-9]/g, '')).to.equal('Special flags found, respawning.\nRespawned to PID: \nRunning!\n');
         done();
       });
     });
@@ -54,16 +49,45 @@ describe('flaggedRespawn', function () {
       });
     });
 
-    it.skip('should respawn; if child is killed, signal should be sent from child to parent on exit', function (done) {
+    it('should respawn; if child is killed, parent should exit with same signal', function (done) {
       // TODO: figure out why travis hates this
       exec('node ./test/bin/signal.js --harmony', function (err, stdout, stderr) {
-        console.log('err', err);
-        console.log('stdout', stdout);
-        console.log('stderr', stderr);
+        //console.log('err', err);
+        //console.log('stdout', stdout);
+        //console.log('stderr', stderr);
         expect(err.signal).to.equal('SIGHUP');
         done();
       });
     });
+
+    it('should call back with ready as true when respawn is not needed', function () {
+      var argv = ['node', './test/bin/respawner'];
+      flaggedRespawn(flags, argv, function (ready) {
+        expect(ready).to.be.true;
+      });
+    });
+
+    it('should call back with ready as false when respawn is needed', function () {
+      var argv = ['node', './test/bin/respawner', '--harmony'];
+      flaggedRespawn(flags, argv, function (ready) {
+        expect(ready).to.be.false;
+      });
+    });
+
+    it('should call back with the child process when ready', function () {
+      var argv = ['node', './test/bin/respawner', '--harmony'];
+      flaggedRespawn(flags, argv, function (ready, child) {
+        expect(child.pid).to.not.equal(process.pid);
+      });
+    });
+
+    it('should call back with own process when respawn not needed', function () {
+      var argv = ['node', './test/bin/respawner'];
+      flaggedRespawn(flags, argv, function (ready, child) {
+        expect(child.pid).to.equal(process.pid);
+      });
+    });
+
   });
 
 });
