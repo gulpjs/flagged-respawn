@@ -27,7 +27,7 @@ To see it in action, clone this repository and run `npm install` / `npm run resp
 
 ## API
 
-*To support any flags available via `node --v8-options`, use [node-v8flags](https://github.com/tkelle/node-v8flags).*
+*To support any flags available via `node --v8-options`, use [node-v8flags](https://github.com/tkellen/node-v8flags).*
 
 ### needed(flags, argv)
 
