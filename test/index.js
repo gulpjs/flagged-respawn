@@ -56,6 +56,9 @@ describe('flaggedRespawn', function () {
 
     it('should respawn; if child is killed, signal should be sent from child to parent on exit', function (done) {
       exec('node ./test/bin/signal.js --harmony', function (err, stdout, stderr) {
+        console.log('err', err);
+        console.log('stdout', stdout);
+        console.log('stderr', stderr);
         expect(err.signal).to.equal('SIGHUP');
         done();
       });
