@@ -1,4 +1,4 @@
-# flagged-respawn [![Build Status](https://secure.travis-ci.org/tkellen/node-flagged-respawn.png)](http://travis-ci.org/tkellen/node-flagged-respawn)
+# flagged-respawn [![Build Status](https://secure.travis-ci.org/tkellen/js-flagged-respawn.png)](http://travis-ci.org/tkellen/node-flagged-respawn)
 > A tool for respawning node binaries when special flags are present.
 
 [![NPM](https://nodei.co/npm/flagged-respawn.png)](https://nodei.co/npm/flagged-respawn/)
