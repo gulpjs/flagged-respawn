@@ -51,6 +51,7 @@ flaggedRespawn(v8flags, process.argv, function (ready, child) {
 
 ## Release History
 
+* 2016-03-22 - v0.3.2 - fix issue with v8 flags values being dropped
 * 2014-09-12 - v0.3.1 - use `{ stdio: 'inherit' }` for spawn to maintain colors
 * 2014-09-11 - v0.3.0 - for real this time
 * 2014-09-11 - v0.2.0 - cleanup
