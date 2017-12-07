@@ -1,9 +1,11 @@
 const expect = require('chai').expect;
 const exec = require('child_process').exec;
 const os = require('os');
+const path = require('path');
 
 const reorder = require('../lib/reorder');
 const isV8flags = require('../lib/is-v8flags');
+const remover = require('../lib/remover');
 const flaggedRespawn = require('../');
 
 describe('flaggedRespawn', function () {
@@ -61,14 +63,37 @@ describe('flaggedRespawn', function () {
 
   });
 
-  describe('execute', function () {
+  describe('remover', function() {
+    it('should remove args included in flags', function() {
+      var needsRespawn = ['node', 'file.js', '--flag', '--harmony', 'command'];
+      var noRespawnNeeded = ['node', 'bin/flagged-respawn', 'thing'];
+      expect(remover(flags, needsRespawn))
+        .to.deep.equal(['node', 'file.js', '--flag', 'command']);
+      expect(reorder(flags, noRespawnNeeded))
+        .to.deep.equal(noRespawnNeeded);
+    });
+
+    it('should remove a arg even when the arg has value', function() {
+      var args = ['node', 'file.js', '--stack_size=2048'];
+      var expected = ['node', 'file.js'];
+      expect(remover(flags, args)).to.deep.equal(expected);
+    });
+
+    it('should remove special flags when they are in the correct position', function () {
+      var args = ['node', '--harmony', 'file.js', '--flag'];
+      var expected = ['node', 'file.js', '--flag'];
+      expect(reorder(flags, remover(flags, args))).to.deep.equal(expected);
+    });
+  });
+
+  describe('main export', function () {
 
     it('should throw if no flags are specified', function () {
-      expect(function () { flaggedRespawn.execute(); }).to.throw;
+      expect(function () { flaggedRespawn(); }).to.throw;
     });
 
     it('should throw if no argv is specified', function () {
-      expect(function () { flaggedRespawn.execute(flags); }).to.throw;
+      expect(function () { flaggedRespawn(flags); }).to.throw;
     });
 
     it('should respawn and pipe stderr/stdout to parent', function (done) {
@@ -160,6 +185,149 @@ describe('flaggedRespawn', function () {
 
   });
 
+  describe('force and forbid respawning', function() {
+    it('forbid respawning with --no-respawning flag', function(done) {
+      var cmd = [
+        'node',
+        path.resolve(__dirname, 'bin/respawner.js'),
+        '--harmony',
+        '--no-respawning',
+      ].join(' ');;
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Running!\n');
+        done();
+      });
+    });
+
+    it('always forbid respawning with inner --no-respawning', function(done) {
+      var cmd = [
+        'node',
+        path.resolve(__dirname, 'bin/forbid-respawning.js'),
+        '--harmony',
+      ].join(' ');;
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Running!\n');
+        done();
+      });
+    });
+
+    it('should force respawning with node flags (array)', function(done) {
+      var cmd = [
+        'node',
+        path.resolve(__dirname, 'bin/force-respawning.js'),
+      ].join(' ');;
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Respawning!\nRunning!\n');
+        done();
+      });
+    });
+
+    it('should force respawning with node flags (string)', function(done) {
+      var cmd = [
+        'node',
+        path.resolve(__dirname, 'bin/force-respawning-string.js'),
+      ].join(' ');;
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Respawning!\nRunning!\n');
+        done();
+      });
+    });
+
+    it('should take priority to forbidding than forcing', function(done) {
+      exec('node ./test/bin/force-and-forbid-respawning.js', cb);
+
+      function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Running!\n');
+        done();
+      }
+    });
+  });
+
+  describe('cli args which are passed to app', function() {
+
+    it('should pass args except v8flags, forced node flags, --no-respawning when respawned', function(done) {
+      var script = path.resolve(__dirname, 'bin/print-args.js');
+      var cmd = [
+        process.argv[0],
+        script,
+        'aaa',
+        '--harmony',
+        '-q',
+        '1234',
+        '--cwd',
+        'bbb/ccc/ddd',
+        '--prof_browser_mode',
+        '-V',
+      ].join(' ');
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Respawning!\n' +
+          'cli args passed to app: ' + [
+          process.argv[0],
+          script,
+          'aaa',
+          '-q',
+          '1234',
+          '--cwd',
+          'bbb/ccc/ddd',
+          '-V',
+        ].join(' ') + '\n');
+        done();
+      });
+    });
+
+    it('should pass args except v8flags, forced node flags, --no-respawning when not respawned', function(done) {
+      var script = path.resolve(__dirname, 'bin/print-args.js');
+      var cmd = [
+        process.argv[0],
+        script,
+        'aaa',
+        '--harmony',
+        '-q',
+        '1234',
+        '--cwd',
+        'bbb/ccc/ddd',
+        '--prof-browser-mode',
+        '-V',
+        '--no-respawning',
+      ].join(' ');;
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal(
+          'cli args passed to app: ' + [
+          process.argv[0],
+          script,
+          'aaa',
+          '-q',
+          '1234',
+          '--cwd',
+          'bbb/ccc/ddd',
+          '-V',
+        ].join(' ') + '\n');
+        done();
+      });
+    });
+
+  });
+
   describe('parameter checks', function() {
 
     it('should throw an error when flags is nullish', function() {
@@ -173,6 +341,16 @@ describe('flaggedRespawn', function () {
       expect(function() {
         flaggedRespawn(flags, undefined, exec);
       }).throws(Error);
+    });
+
+    it('will not respawn if forced flags is not string or array', function(done) {
+      var argv = ['node', './test/bin/respawner'];
+
+      flaggedRespawn(flags, argv, {}, function(ready, child) {
+        expect(ready).to.be.true;
+        expect(child.pid).to.equal(process.pid);
+        done();
+      });
     });
   });
 
