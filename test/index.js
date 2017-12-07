@@ -1,5 +1,6 @@
 const expect = require('chai').expect;
 const exec = require('child_process').exec;
+const os = require('os');
 
 const reorder = require('../lib/reorder');
 const flaggedRespawn = require('../');
@@ -55,13 +56,31 @@ describe('flaggedRespawn', function () {
       });
     });
 
-    it.skip('should respawn; if child is killed, parent should exit with same signal', function (done) {
-      // TODO: figure out why travis hates this
+    it('should respawn; if child is killed, parent should exit with same signal', function (done) {
+      // Because travis and nyc hates this
+      if (process.env.TRAVIS || process.env.NYC_PARENT_PID) {
+        this.skip();
+        return;
+      }
+
       exec('node ./test/bin/signal.js --harmony', function (err, stdout, stderr) {
         console.log('err', err);
         console.log('stdout', stdout);
         console.log('stderr', stderr);
-        expect(err.signal).to.equal('SIGHUP');
+
+        switch (os.platform()) {
+          // err.signal is null on Windows and Linux.
+          // Is this related to the issue #12378 of nodejs/node?
+          case 'win32':
+          case 'linux': {
+            expect(err.signal).to.equal(null);
+            break;
+          }
+          default: {
+            expect(err.signal).to.equal('SIGHUP');
+            break;
+          }
+        }
         done();
       });
     });
@@ -94,6 +113,22 @@ describe('flaggedRespawn', function () {
       });
     });
 
+  });
+
+  describe('parameter checks', function() {
+
+    it('should throw an error when flags is nullish', function() {
+      var argv = ['node', './test/bin/respawner'];
+      var exec = function() {};
+
+      expect(function() {
+        flaggedRespawn(null, argv, exec);
+      }).throws(Error);
+
+      expect(function() {
+        flaggedRespawn(flags, undefined, exec);
+      }).throws(Error);
+    });
   });
 
 });
