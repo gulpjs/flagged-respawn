@@ -30,6 +30,10 @@ describe('flaggedRespawn', function () {
       expect(reorder(flags, reorder(flags, args))).to.deep.equal(args);
     });
 
+    it('defaults to process.argv if none specified', function () {
+      expect(reorder(flags)).to.deep.equal(process.argv);
+    });
+
   });
 
   describe('execute', function () {
@@ -92,17 +96,33 @@ describe('flaggedRespawn', function () {
       });
     });
 
-    it('should call back with ready as false when respawn is needed', function () {
-      var argv = ['node', './test/bin/respawner', '--harmony'];
-      flaggedRespawn(flags, argv, function (ready) {
-        expect(ready).to.be.false;
+    it('should call back with ready as false when respawn is needed', function (done) {
+      var argv = ['node', './test/bin/callback-params', '--harmony'];
+      exec(argv.join(' '), function(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        var results = stdout.slice(0, -1).split('\n');
+        expect(results.length).to.equal(2);
+        expect(JSON.parse(results[0]).ready).to.be.false;
+        expect(JSON.parse(results[1]).ready).to.be.true;
+        done();
       });
     });
 
-    it('should call back with the child process when ready', function () {
-      var argv = ['node', './test/bin/respawner', '--harmony'];
-      flaggedRespawn(flags, argv, function (ready, child) {
-        expect(child.pid).to.not.equal(process.pid);
+    it('should call back with the child process when ready', function (done) {
+      var argv = ['node', './test/bin/callback-params', '--harmony'];
+      exec(argv.join(' '), function(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        var results = stdout.slice(0, -1).split('\n');
+        expect(results.length).to.equal(2);
+
+        var params = JSON.parse(results[0]);
+        expect(params.child_pid).to.not.equal(params.process_pid);
+
+        params = JSON.parse(results[1]);
+        expect(params.child_pid).to.equal(params.process_pid);
+        done();
       });
     });
 
