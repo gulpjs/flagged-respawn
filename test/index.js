@@ -3,10 +3,29 @@ const exec = require('child_process').exec;
 const os = require('os');
 
 const reorder = require('../lib/reorder');
+const isV8flags = require('../lib/is-v8flags');
 const flaggedRespawn = require('../');
 
 describe('flaggedRespawn', function () {
   var flags = ['--harmony', '--use_strict', '--stack_size']
+
+  describe('isV8flags', function() {
+    it('should return true when flag is in v8flags', function() {
+      expect(isV8flags('--harmony', flags)).to.be.true;
+      expect(isV8flags('--use_strict', flags)).to.be.true;
+      expect(isV8flags('--stack_size', flags)).to.be.true;
+    });
+
+    it('should ignore separator differences of "-" and "_"', function() {
+      expect(isV8flags('--use-strict', flags)).to.be.true;
+      expect(isV8flags('--stack-size', flags)).to.be.true;
+    });
+
+    it('should return false when flag is not in v8flags', function() {
+      expect(isV8flags('--aaa', flags)).to.be.false;
+      expect(isV8flags('__use_strict', flags)).to.be.false;
+    });
+  });
 
   describe('reorder', function () {
 
@@ -22,6 +41,12 @@ describe('flaggedRespawn', function () {
     it('should keep flags values when not placed first', function () {
       var args = ['node', 'file.js', '--stack_size=2048'];
       var expected = ['node', '--stack_size=2048', 'file.js'];
+      expect(reorder(flags, args)).to.deep.equal(expected);
+    });
+
+    it('should re-order args when flag separators are dashes', function() {
+      var args = ['node', 'file.js', '--stack-size=2048'];
+      var expected = ['node', '--stack-size=2048', 'file.js'];
       expect(reorder(flags, args)).to.deep.equal(expected);
     });
 
