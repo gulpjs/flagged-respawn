@@ -1,7 +1,7 @@
 {
   "name": "flagged-respawn",
   "description": "A tool for respawning node binaries when special flags are present.",
-  "version": "0.3.2",
+  "version": "1.0.0",
   "homepage": "https://github.com/js-cli/js-flagged-respawn",
   "author": {
     "name": "Tyler Kellen",
