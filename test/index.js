@@ -1,12 +1,33 @@
 const expect = require('chai').expect;
 const exec = require('child_process').exec;
 const os = require('os');
+const path = require('path');
 
 const reorder = require('../lib/reorder');
+const isV8flags = require('../lib/is-v8flags');
+const remover = require('../lib/remover');
 const flaggedRespawn = require('../');
 
 describe('flaggedRespawn', function () {
   var flags = ['--harmony', '--use_strict', '--stack_size']
+
+  describe('isV8flags', function() {
+    it('should return true when flag is in v8flags', function() {
+      expect(isV8flags('--harmony', flags)).to.be.true;
+      expect(isV8flags('--use_strict', flags)).to.be.true;
+      expect(isV8flags('--stack_size', flags)).to.be.true;
+    });
+
+    it('should ignore separator differences of "-" and "_"', function() {
+      expect(isV8flags('--use-strict', flags)).to.be.true;
+      expect(isV8flags('--stack-size', flags)).to.be.true;
+    });
+
+    it('should return false when flag is not in v8flags', function() {
+      expect(isV8flags('--aaa', flags)).to.be.false;
+      expect(isV8flags('__use_strict', flags)).to.be.false;
+    });
+  });
 
   describe('reorder', function () {
 
@@ -25,6 +46,12 @@ describe('flaggedRespawn', function () {
       expect(reorder(flags, args)).to.deep.equal(expected);
     });
 
+    it('should re-order args when flag separators are dashes', function() {
+      var args = ['node', 'file.js', '--stack-size=2048'];
+      var expected = ['node', '--stack-size=2048', 'file.js'];
+      expect(reorder(flags, args)).to.deep.equal(expected);
+    });
+
     it('should ignore special flags when they are in the correct position', function () {
       var args = ['node', '--harmony', 'file.js', '--flag'];
       expect(reorder(flags, reorder(flags, args))).to.deep.equal(args);
@@ -34,6 +61,29 @@ describe('flaggedRespawn', function () {
       expect(reorder(flags)).to.deep.equal(process.argv);
     });
 
+  });
+
+  describe('remover', function() {
+    it('should remove args included in flags', function() {
+      var needsRespawn = ['node', 'file.js', '--flag', '--harmony', 'command'];
+      var noRespawnNeeded = ['node', 'bin/flagged-respawn', 'thing'];
+      expect(remover(flags, needsRespawn))
+        .to.deep.equal(['node', 'file.js', '--flag', 'command']);
+      expect(reorder(flags, noRespawnNeeded))
+        .to.deep.equal(noRespawnNeeded);
+    });
+
+    it('should remove a arg even when the arg has value', function() {
+      var args = ['node', 'file.js', '--stack_size=2048'];
+      var expected = ['node', 'file.js'];
+      expect(remover(flags, args)).to.deep.equal(expected);
+    });
+
+    it('should remove special flags when they are in the correct position', function () {
+      var args = ['node', '--harmony', 'file.js', '--flag'];
+      var expected = ['node', 'file.js', '--flag'];
+      expect(reorder(flags, remover(flags, args))).to.deep.equal(expected);
+    });
   });
 
   describe('execute', function () {
@@ -135,6 +185,135 @@ describe('flaggedRespawn', function () {
 
   });
 
+  describe('force and forbid respawning', function() {
+    it('forbid respawning with --no-respawning flag', function(done) {
+      var cmd = [
+        'node',
+        path.resolve(__dirname, 'bin/respawner.js'),
+        '--harmony',
+        '--no-respawning',
+      ].join(' ');;
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Running!\n');
+        done();
+      });
+    });
+
+    it('always forbid respawning with inner --no-respawning', function(done) {
+      var cmd = [
+        'node',
+        path.resolve(__dirname, 'bin/forbid-respawning.js'),
+        '--harmony',
+      ].join(' ');;
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Running!\n');
+        done();
+      });
+    });
+
+    it('should force respawning with node flags', function(done) {
+      var cmd = [
+        'node',
+        path.resolve(__dirname, 'bin/force-respawning.js'),
+      ].join(' ');;
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Respawning!\nRunning!\n');
+        done();
+      });
+    });
+
+    it('should take priority to forbidding than forcinge', function(done) {
+      exec('node ./test/bin/force-and-forbid-respawning.js', cb);
+
+      function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Running!\n');
+        done();
+      }
+    });
+  });
+
+  describe('cli args which are passed to app', function() {
+
+    it('should pass args except v8flags, forced node flags, --no-respawning when respawned', function(done) {
+      var script = path.resolve(__dirname, 'bin/print-args.js');
+      var cmd = [
+        process.argv[0],
+        script,
+        'aaa',
+        '--harmony',
+        '-q',
+        '1234',
+        '--cwd',
+        'bbb/ccc/ddd',
+        '--prof_browser_mode',
+        '-V',
+      ].join(' ');
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Respawning!\n' +
+          'cli args passed to app: ' + [
+          process.argv[0],
+          script,
+          'aaa',
+          '-q',
+          '1234',
+          '--cwd',
+          'bbb/ccc/ddd',
+          '-V',
+        ].join(' ') + '\n');
+        done();
+      });
+    });
+
+    it('should pass args except v8flags, forced node flags, --no-respawning when not respawned', function(done) {
+      var script = path.resolve(__dirname, 'bin/print-args.js');
+      var cmd = [
+        process.argv[0],
+        script,
+        'aaa',
+        '--harmony',
+        '-q',
+        '1234',
+        '--cwd',
+        'bbb/ccc/ddd',
+        '--prof-browser-mode',
+        '-V',
+        '--no-respawning',
+      ].join(' ');;
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal(
+          'cli args passed to app: ' + [
+          process.argv[0],
+          script,
+          'aaa',
+          '-q',
+          '1234',
+          '--cwd',
+          'bbb/ccc/ddd',
+          '-V',
+        ].join(' ') + '\n');
+        done();
+      });
+    });
+
+  });
+
   describe('parameter checks', function() {
 
     it('should throw an error when flags is nullish', function() {
@@ -148,6 +327,16 @@ describe('flaggedRespawn', function () {
       expect(function() {
         flaggedRespawn(flags, undefined, exec);
       }).throws(Error);
+    });
+
+    it('should not respawn if forced flags is not an array', function(done) {
+      var argv = ['node', './test/bin/respawner'];
+
+      flaggedRespawn(flags, argv, '--harmony', function(ready, child) {
+        expect(ready).to.be.true;
+        expect(child.pid).to.equal(process.pid);
+        done();
+      });
     });
   });
 
