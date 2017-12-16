@@ -66,7 +66,7 @@ If `--no-respawning` flag is given in *argv*, this function does not respawned e
 |:--------------|:------:|:----------------------------------------------------|
 | *flags*       | Array  | An array of node flags and V8 flags which are available when present in *argv*. |
 | *argv*        | Array  | Command line arguments to respawn.   |
-| *forcedFlags* | Array  | An array of node flags and V8 flags for respawning forcely. |
+| *forcedFlags* | Array or String  | An array of node flags or a string of a single flag and V8 flags for respawning forcely. |
 | *callback*    | function | A called function when not respawning or after respawned. |
 
 * **<u><i>callback</i>(ready, proc, argv) : Void</u>**
@@ -85,6 +85,7 @@ If `--no-respawning` flag is given in *argv*, this function does not respawned e
 
 ## Release History
 
+* 2017-12-16 - v1.0.0 - Force/Forbid respawn, Improved API & testing
 * 2016-03-22 - v0.3.2 - fix issue with v8 flags values being dropped
 * 2014-09-12 - v0.3.1 - use `{ stdio: 'inherit' }` for spawn to maintain colors
 * 2014-09-11 - v0.3.0 - for real this time
