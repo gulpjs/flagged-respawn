@@ -4,7 +4,7 @@ const remover = require('./lib/remover');
 
 const FORBID_RESPAWNING_FLAG = '--no-respawning';
 
-module.exports = function (flags, argv, forcedFlags, execute) {
+module.exports = function (flags, argv, forcedFlags, isForced, execute) {
   if (!flags) {
     throw new Error('You must specify flags to respawn with.');
   }
@@ -15,6 +15,17 @@ module.exports = function (flags, argv, forcedFlags, execute) {
   if (typeof forcedFlags === 'function') {
     execute = forcedFlags;
     forcedFlags = [];
+    isForced = false;
+
+  } else if (typeof isForced === 'function') {
+    execute = isForced;
+
+    if (typeof forcedFlags === 'boolean') {
+      isForced = forcedFlags;
+      forcedFlags = [];
+    } else {
+      isForced = false;
+    }
   }
 
   if (typeof forcedFlags === 'string') {
@@ -41,6 +52,10 @@ module.exports = function (flags, argv, forcedFlags, execute) {
     reordered = reordered.slice(0, 1)
       .concat(forcedFlags)
       .concat(reordered.slice(1));
+    ready = false;
+  }
+
+  if (isForced) {
     ready = false;
   }
 
