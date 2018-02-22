@@ -255,6 +255,85 @@ describe('flaggedRespawn', function () {
         done();
       }
     });
+
+    it('should force respawning when isForced is true and forcedFlags is empty', function(done) {
+      var cmd = [
+        'node',
+        path.resolve(__dirname, 'bin/force-respawning-isforced-0.js'),
+      ].join(' ');;
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Respawning!\nRunning!\n');
+        done();
+      });
+    });
+
+    it('should not force respawning when isForced is false and forcedFlags is empty', function(done) {
+      var cmd = [
+        'node',
+        path.resolve(__dirname, 'bin/force-respawning-isforced-1.js'),
+      ].join(' ');;
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Running!\n');
+        done();
+      });
+    });
+
+    it('should force respawning when isForced is true and no forcedFlags', function(done) {
+      var cmd = [
+        'node',
+        path.resolve(__dirname, 'bin/force-respawning-isforced-2.js'),
+      ].join(' ');;
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Respawning!\nRunning!\n');
+        done();
+      });
+    });
+
+    it('should not force respawning when isForced is false and no forcedFlags', function(done) {
+      var cmd = [
+        'node',
+        path.resolve(__dirname, 'bin/force-respawning-isforced-3.js'),
+      ].join(' ');;
+
+      exec(cmd, function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Running!\n');
+        done();
+      });
+    });
+
+    it('should take priority to forbidding than forcing with isForced and forcedFlags', function(done) {
+      exec('node ./test/bin/force-and-forbid-respawning-1.js', cb);
+
+      function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Running!\n');
+        done();
+      }
+    });
+
+    it('should take priority to forbidding than forcing with isForced and no forcedFlags', function(done) {
+      exec('node ./test/bin/force-and-forbid-respawning-2.js', cb);
+
+      function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('Running!\n');
+        done();
+      }
+    });
+
   });
 
   describe('cli args which are passed to app', function() {

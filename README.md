@@ -52,9 +52,11 @@ flaggedRespawn(v8flags, process.argv, function (ready, child) {
 
 ## API
 
-### <u>flaggedRespawn(flags, argv, [ forcedFlags, ] callback) : Void</u>
+### <u>flaggedRespawn(flags, argv, [ forcedFlags, ] [ isForced , ] callback) : Void</u>
 
 Respawns the script itself when *argv* has special flag contained in *flags* and/or *forcedFlags* is not empty. Because members of *flags* and *forcedFlags* are passed to `node` command, each of them needs to be a node flag or a V8 flag.
+
+In addition, this function respawns also when *isForced* is specified and its value is true. 
 
 #### Forbid respawning
 
@@ -66,7 +68,8 @@ If `--no-respawning` flag is given in *argv*, this function does not respawned e
 |:--------------|:------:|:----------------------------------------------------|
 | *flags*       | Array  | An array of node flags and V8 flags which are available when present in *argv*. |
 | *argv*        | Array  | Command line arguments to respawn.   |
-| *forcedFlags* | Array or String  | An array of node flags or a string of a single flag and V8 flags for respawning forcely. |
+| *forcedFlags* | Array or String  | An array of node flags or a string of a single flag and V8 flags for respawning forcely. (Optional) |
+| *isForced*    | boolean | A flag to force respawn even if *forcedFlags* is empty or not specified. (Optional) |
 | *callback*    | function | A called function when not respawning or after respawned. |
 
 * **<u><i>callback</i>(ready, proc, argv) : Void</u>**
