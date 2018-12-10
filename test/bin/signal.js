@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const flaggedRespawn = require('../../');
+var flaggedRespawn = require('../../');
 
-flaggedRespawn(['--harmony'], process.argv, function (ready, child) {
+flaggedRespawn(['--harmony'], process.argv, function(ready, child) {
 
   if (ready) {
     setTimeout(function() {

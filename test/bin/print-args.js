@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const flaggedRespawn = require('../..');
-const v8flags = require('v8flags');
-const path = require('path');
+var flaggedRespawn = require('../..');
+var v8flags = require('v8flags');
+var path = require('path');
 
 v8flags(function(err, flags) {
   if (err) {
@@ -17,7 +17,7 @@ v8flags(function(err, flags) {
     'v8flags',
     '--v8-pool-size=2',
 */
-  ], function (ready, child, args) {
+  ], function(ready, child, args) {
     if (ready) {
       console.log('cli args passed to app:', args.join(' '));
     } else {
