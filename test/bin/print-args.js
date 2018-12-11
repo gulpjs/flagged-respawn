@@ -2,7 +2,6 @@
 
 var flaggedRespawn = require('../..');
 var v8flags = require('v8flags');
-var path = require('path');
 
 v8flags(function(err, flags) {
   if (err) {
