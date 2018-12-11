@@ -106,14 +106,14 @@ describe('flaggedRespawn', function() {
     });
 
     it('should respawn and pipe stderr/stdout to parent', function(done) {
-      exec('node ./test/bin/respawner.js --harmony', function(err, stdout, stderr) {
+      exec('node ./test/bin/respawner.js --harmony', function(err, stdout) {
         expect(stdout.replace(/[0-9]/g, '')).toEqual('Special flags found, respawning.\nRespawned to PID: \nRunning!\n');
         done();
       });
     });
 
     it('should respawn and pass exit code from child to parent', function(done) {
-      exec('node ./test/bin/exit_code.js --harmony', function(err, stdout, stderr) {
+      exec('node ./test/bin/exit_code.js --harmony', function(err) {
         expect(err.code).toEqual(100);
         done();
       });
@@ -126,7 +126,7 @@ describe('flaggedRespawn', function() {
         return;
       }
 
-      exec('node ./test/bin/signal.js --harmony', function(err, stdout, stderr) {
+      exec('node ./test/bin/signal.js --harmony', function(err) {
         switch (os.platform()) {
           // err.signal is null on Windows and Linux.
           // Is this related to the issue #12378 of nodejs/node?

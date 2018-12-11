@@ -10,7 +10,7 @@ v8flags(function(err, flags) {
     return;
   }
 
-  flaggedRespawn(flags, process.argv, ['--trace-deprecation'], function(ready, child) {
+  flaggedRespawn(flags, process.argv, ['--trace-deprecation'], function(ready) {
     if (ready) {
       console.log('Running!');
     } else {
