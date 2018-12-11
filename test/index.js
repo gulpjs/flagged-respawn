@@ -270,7 +270,7 @@ describe('flaggedRespawn', function() {
     it('should pass args except v8flags, forced node flags, --no-respawning when respawned', function(done) {
       var script = path.resolve(__dirname, 'bin/print-args.js');
       var cmd = [
-        process.argv[0],
+        '"' + process.argv[0] + '"',
         script,
         'aaa',
         '--harmony',
@@ -298,7 +298,7 @@ describe('flaggedRespawn', function() {
     it('should pass args except v8flags, forced node flags, --no-respawning when not respawned', function(done) {
       var script = path.resolve(__dirname, 'bin/print-args.js');
       var cmd = [
-        process.argv[0],
+        '"' + process.argv[0] + '"',
         script,
         'aaa',
         '--harmony',
