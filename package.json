@@ -23,10 +23,7 @@
   "scripts": {
     "lint": "eslint .",
     "pretest": "npm run lint",
-    "test": "mocha --async-only",
-    "cover": "nyc mocha --async-only",
-    "respawn": "node test/bin/respawner --harmony test",
-    "nospawn": "node test/bin/respawner test"
+    "test": "nyc mocha --async-only"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
@@ -35,7 +32,7 @@
     "expect": "^27.3.1",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
-    "v8flags": "^3.2.0"
+    "v8flags": "^4.0.0"
   },
   "nyc": {
     "reporter": [
