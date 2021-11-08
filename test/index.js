@@ -121,7 +121,7 @@ describe('flaggedRespawn', function() {
 
     it('should respawn; if child is killed, parent should exit with same signal', function(done) {
       // Because travis and nyc hates this
-      if (process.env.TRAVIS || process.env.NYC_PARENT_PID || process.env.NYC_PROCESS_ID) {
+      if (process.env.NYC_PARENT_PID || process.env.NYC_PROCESS_ID) {
         this.skip();
         return;
       }
