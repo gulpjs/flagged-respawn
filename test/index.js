@@ -9,17 +9,11 @@ var remover = require('../lib/remover');
 var flaggedRespawn = require('../');
 
 describe('flaggedRespawn', function() {
-  var flags = ['--harmony', '--use_strict', '--stack_size'];
+  var flags = ['--harmony', '--use-strict', '--stack-size'];
 
   describe('isV8flags', function() {
     it('should return true when flag is in v8flags', function(done) {
       expect(isV8flags('--harmony', flags)).toEqual(true);
-      expect(isV8flags('--use_strict', flags)).toEqual(true);
-      expect(isV8flags('--stack_size', flags)).toEqual(true);
-      done();
-    });
-
-    it('should ignore separator differences of "-" and "_"', function(done) {
       expect(isV8flags('--use-strict', flags)).toEqual(true);
       expect(isV8flags('--stack-size', flags)).toEqual(true);
       done();
@@ -43,13 +37,6 @@ describe('flaggedRespawn', function() {
     });
 
     it('should keep flags values when not placed first', function(done) {
-      var args = ['node', 'file.js', '--stack_size=2048'];
-      var expected = ['node', '--stack_size=2048', 'file.js'];
-      expect(reorder(flags, args)).toEqual(expected);
-      done();
-    });
-
-    it('should re-order args when flag separators are dashes', function(done) {
       var args = ['node', 'file.js', '--stack-size=2048'];
       var expected = ['node', '--stack-size=2048', 'file.js'];
       expect(reorder(flags, args)).toEqual(expected);
@@ -79,7 +66,7 @@ describe('flaggedRespawn', function() {
     });
 
     it('should remove a arg even when the arg has value', function(done) {
-      var args = ['node', 'file.js', '--stack_size=2048'];
+      var args = ['node', 'file.js', '--stack-size=2048'];
       var expected = ['node', 'file.js'];
       expect(remover(flags, args)).toEqual(expected);
       done();
@@ -278,7 +265,7 @@ describe('flaggedRespawn', function() {
         '1234',
         '--cwd',
         'bbb/ccc/ddd',
-        '--prof_browser_mode',
+        '--prof-browser-mode',
         '-V',
       ].join(' ');
 
