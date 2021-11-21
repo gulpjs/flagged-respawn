@@ -2,15 +2,13 @@
 
 var flaggedRespawn = require('../../');
 
-flaggedRespawn(['--harmony'], process.argv, function(ready, child) {
-
+flaggedRespawn(['--harmony'], process.argv, function (ready, child) {
   if (ready) {
-    setTimeout(function() {
+    setTimeout(function () {
       process.exit();
     }, 100);
   } else {
     console.log('got child!');
     child.kill('SIGHUP');
   }
-
 });
