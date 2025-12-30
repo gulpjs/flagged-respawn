@@ -17,7 +17,7 @@ v8flags(function (err, flags) {
       console.log('Special flags found, respawning.');
     }
     if (child.pid !== process.pid) {
-      console.log('Respawned to PID:', child.pid);
+      console.log('Respawned to PID: ' + child.pid);
     }
   });
 });
