@@ -23,7 +23,6 @@
   ],
   "scripts": {
     "lint": "eslint .",
-    "pretest": "npm run lint",
     "test": "nyc mocha --async-only"
   },
   "devDependencies": {
