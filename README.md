@@ -98,9 +98,9 @@ MIT
 [npm-url]: https://www.npmjs.com/package/flagged-respawn
 [npm-image]: https://img.shields.io/npm/v/flagged-respawn.svg?style=flat-square
 
-[ci-url]: https://github.com/gulpjs/flagged-respawn/actions?query=workflow:dev
-[ci-image]: https://img.shields.io/github/workflow/status/gulpjs/flagged-respawn/dev?style=flat-square
+[ci-url]: https://github.com/gulpjs/flagged-respawn/actions/workflows/dev.yml
+[ci-image]: https://img.shields.io/github/actions/workflow/status/gulpjs/flagged-respawn/dev.yml?style=flat-square
 
 [coveralls-url]: https://coveralls.io/r/gulpjs/flagged-respawn
-[coveralls-image]: https://img.shields.io/coveralls/gulpjs/flagged-respawn/master.svg?style=flat-square
+[coveralls-image]: https://img.shields.io/coveralls/gulpjs/flagged-respawn/main.svg?style=flat-square
 <!-- prettier-ignore-end -->
