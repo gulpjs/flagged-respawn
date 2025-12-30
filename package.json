@@ -9,6 +9,7 @@
     "Tyler Kellen <tyler@sleekcode.net>",
     "Blaine Bublitz <blaine.bublitz@gmail.com>"
   ],
+  "funding": "https://github.com/sponsors/gulpjs",
   "repository": "gulpjs/flagged-respawn",
   "license": "MIT",
   "engines": {
