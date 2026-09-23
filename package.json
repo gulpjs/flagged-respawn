@@ -13,7 +13,7 @@
   "repository": "gulpjs/flagged-respawn",
   "license": "MIT",
   "engines": {
-    "node": ">= 10.13.0"
+    "node": ">= 22.15.0"
   },
   "main": "index.js",
   "files": [
