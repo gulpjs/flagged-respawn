@@ -31,7 +31,7 @@ Flagged-respawn fixes this problem and handles all the edge cases respawning cre
 - Making the parent process exit with the same code as the child.
 - If the child is killed, making the parent exit with the same signal.
 
-To see it in action, clone this repository and run `npm install` / `npm run respawn` / `npm run nospawn`.
+To see it in action, clone this repository and run `npm ci` / `npm run respawn` / `npm run nospawn`.
 
 ## Sample Usage
 
