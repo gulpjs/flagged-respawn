@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://www.github.com/gulpjs/flagged-respawn/compare/v2.0.0...v3.0.0) (2026-09-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* Drop support for Node <22.15.0 (#23)
+
+### Miscellaneous Chores
+
+* Drop support for Node <22.15.0 ([#23](https://www.github.com/gulpjs/flagged-respawn/issues/23)) ([40fb7ab](https://www.github.com/gulpjs/flagged-respawn/commit/40fb7ab8578e0e8bbf18ebe812a398419626e2dd))
+
 ## [2.0.0](https://www.github.com/gulpjs/flagged-respawn/compare/v1.0.1...v2.0.0) (2021-11-21)
 
 
