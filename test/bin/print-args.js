@@ -9,23 +9,12 @@ v8flags(function (err, flags) {
     return;
   }
 
-  flaggedRespawn(
-    flags,
-    process.argv,
-    [
-      "--trace-deprecation",
-      /*
-    '--require',
-    'v8flags',
-    '--v8-pool-size=2',
-*/
-    ],
-    function (ready, child, args) {
-      if (ready) {
-        console.log("cli args passed to app:", args.join(" "));
-      } else {
-        console.log("Respawning!");
-      }
-    },
-  );
+  const { ready, argv } = flaggedRespawn(flags, process.argv, [
+    "--trace-deprecation",
+  ]);
+  if (ready) {
+    console.log("cli args passed to app:", argv.join(" "));
+  } else {
+    console.log("Respawning!");
+  }
 });

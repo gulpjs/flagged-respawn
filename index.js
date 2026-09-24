@@ -2,19 +2,18 @@ import reorder from "./lib/reorder.js";
 import respawn from "./lib/respawn.js";
 import remover from "./lib/remover.js";
 
-var FORBID_RESPAWNING_FLAG = "--no-respawning";
+const FORBID_RESPAWNING_FLAG = "--no-respawning";
 
-export default function flaggedRespawn(flags, argv, forcedFlags, execute) {
+function isNotForbidRespawningFlag(arg) {
+  return arg !== FORBID_RESPAWNING_FLAG;
+}
+
+export default function flaggedRespawn(flags, argv, forcedFlags) {
   if (!flags) {
     throw new Error("You must specify flags to respawn with.");
   }
   if (!argv) {
     throw new Error("You must specify an argv array.");
-  }
-
-  if (typeof forcedFlags === "function") {
-    execute = forcedFlags;
-    forcedFlags = [];
   }
 
   if (typeof forcedFlags === "string") {
@@ -25,17 +24,16 @@ export default function flaggedRespawn(flags, argv, forcedFlags, execute) {
     forcedFlags = [];
   }
 
-  var index = argv.indexOf(FORBID_RESPAWNING_FLAG);
-  if (index >= 0) {
-    argv = argv.slice(0, index).concat(argv.slice(index + 1));
+  let child = process;
+
+  if (argv.includes(FORBID_RESPAWNING_FLAG)) {
+    argv = argv.filter(isNotForbidRespawningFlag);
     argv = remover(flags, argv);
-    execute(true, process, argv);
-    return;
+    return { ready: true, child, argv };
   }
 
-  var proc = process;
-  var reordered = reorder(flags, argv);
-  var ready = JSON.stringify(argv) === JSON.stringify(reordered);
+  let reordered = reorder(flags, argv);
+  let ready = JSON.stringify(argv) === JSON.stringify(reordered);
 
   if (forcedFlags.length) {
     reordered = reordered
@@ -47,7 +45,7 @@ export default function flaggedRespawn(flags, argv, forcedFlags, execute) {
 
   if (!ready) {
     reordered.push(FORBID_RESPAWNING_FLAG);
-    proc = respawn(reordered);
+    child = respawn(reordered);
   }
-  execute(ready, proc, reordered);
+  return { ready, child, argv: reordered };
 }

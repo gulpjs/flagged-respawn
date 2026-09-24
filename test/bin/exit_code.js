@@ -2,10 +2,9 @@
 
 import flaggedRespawn from "../../index.js";
 
-flaggedRespawn(["--harmony"], process.argv, function (ready) {
-  if (ready) {
-    setTimeout(function () {
-      process.exit(100);
-    }, 100);
-  }
-});
+const { ready } = flaggedRespawn(["--harmony"], process.argv);
+if (ready) {
+  setTimeout(function () {
+    process.exit(100);
+  }, 100);
+}

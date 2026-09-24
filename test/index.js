@@ -5,30 +5,22 @@ import os from "node:os";
 import path from "node:path";
 
 import reorder from "../lib/reorder.js";
-import isV8flags from "../lib/is-v8flags.js";
 import remover from "../lib/remover.js";
 import flaggedRespawn from "../index.js";
 
 describe("flaggedRespawn", function () {
-  var flags = ["--harmony", "--use-strict", "--stack-size"];
-
-  describe("isV8flags", function () {
-    it("should return true when flag is in v8flags", function () {
-      assert.strictEqual(isV8flags("--harmony", flags), true);
-      assert.strictEqual(isV8flags("--use-strict", flags), true);
-      assert.strictEqual(isV8flags("--stack-size", flags), true);
-    });
-
-    it("should return false when flag is not in v8flags", function () {
-      assert.strictEqual(isV8flags("--aaa", flags), false);
-      assert.strictEqual(isV8flags("__use_strict", flags), false);
-    });
-  });
+  const flags = ["--harmony", "--use-strict", "--stack-size"];
 
   describe("reorder", function () {
     it("should re-order args, placing special flags first", function () {
-      var needsRespawn = ["node", "file.js", "--flag", "--harmony", "command"];
-      var noRespawnNeeded = ["node", "bin/flagged-respawn", "thing"];
+      const needsRespawn = [
+        "node",
+        "file.js",
+        "--flag",
+        "--harmony",
+        "command",
+      ];
+      const noRespawnNeeded = ["node", "bin/flagged-respawn", "thing"];
       assert.deepStrictEqual(reorder(flags, needsRespawn), [
         "node",
         "--harmony",
@@ -40,13 +32,13 @@ describe("flaggedRespawn", function () {
     });
 
     it("should keep flags values when not placed first", function () {
-      var args = ["node", "file.js", "--stack-size=2048"];
-      var expected = ["node", "--stack-size=2048", "file.js"];
+      const args = ["node", "file.js", "--stack-size=2048"];
+      const expected = ["node", "--stack-size=2048", "file.js"];
       assert.deepStrictEqual(reorder(flags, args), expected);
     });
 
     it("should ignore special flags when they are in the correct position", function () {
-      var args = ["node", "--harmony", "file.js", "--flag"];
+      const args = ["node", "--harmony", "file.js", "--flag"];
       assert.deepStrictEqual(reorder(flags, reorder(flags, args)), args);
     });
 
@@ -57,8 +49,14 @@ describe("flaggedRespawn", function () {
 
   describe("remover", function () {
     it("should remove args included in flags", function () {
-      var needsRespawn = ["node", "file.js", "--flag", "--harmony", "command"];
-      var noRespawnNeeded = ["node", "bin/flagged-respawn", "thing"];
+      const needsRespawn = [
+        "node",
+        "file.js",
+        "--flag",
+        "--harmony",
+        "command",
+      ];
+      const noRespawnNeeded = ["node", "bin/flagged-respawn", "thing"];
       assert.deepStrictEqual(remover(flags, needsRespawn), [
         "node",
         "file.js",
@@ -69,14 +67,14 @@ describe("flaggedRespawn", function () {
     });
 
     it("should remove a arg even when the arg has value", function () {
-      var args = ["node", "file.js", "--stack-size=2048"];
-      var expected = ["node", "file.js"];
+      const args = ["node", "file.js", "--stack-size=2048"];
+      const expected = ["node", "file.js"];
       assert.deepStrictEqual(remover(flags, args), expected);
     });
 
     it("should remove special flags when they are in the correct position", function () {
-      var args = ["node", "--harmony", "file.js", "--flag"];
-      var expected = ["node", "file.js", "--flag"];
+      const args = ["node", "--harmony", "file.js", "--flag"];
+      const expected = ["node", "file.js", "--flag"];
       assert.deepStrictEqual(reorder(flags, remover(flags, args)), expected);
     });
   });
@@ -96,6 +94,7 @@ describe("flaggedRespawn", function () {
 
     it("should respawn and pipe stderr/stdout to parent", function (t, done) {
       exec("node ./test/bin/respawner.js --harmony", function (err, stdout) {
+        assert.strictEqual(err, null);
         assert.strictEqual(
           stdout.replace(/[0-9]/g, ""),
           "Special flags found, respawning.\nRespawned to PID: \nRunning!\n",
@@ -112,12 +111,6 @@ describe("flaggedRespawn", function () {
     });
 
     it("should respawn; if child is killed, parent should exit with same signal", function (t, done) {
-      // Because CI and nyc hates this
-      if (process.env.NYC_PARENT_PID || process.env.NYC_PROCESS_ID) {
-        this.skip();
-        return;
-      }
-
       exec("node ./test/bin/signal.js --harmony", function (err) {
         switch (os.platform()) {
           // err.signal is null on Windows and Linux.
@@ -136,20 +129,18 @@ describe("flaggedRespawn", function () {
       });
     });
 
-    it("should call back with ready as true when respawn is not needed", function (t, done) {
-      var argv = ["node", "./test/bin/respawner"];
-      flaggedRespawn(flags, argv, function (ready) {
-        assert.strictEqual(ready, true);
-        done();
-      });
+    it("should return with ready as true when respawn is not needed", function () {
+      const argv = ["node", "./test/bin/respawner"];
+      const { ready } = flaggedRespawn(flags, argv);
+      assert.strictEqual(ready, true);
     });
 
-    it("should call back with ready as false when respawn is needed", function (t, done) {
-      var argv = ["node", "./test/bin/callback-params", "--harmony"];
+    it("should return with ready as false when respawn is needed", function (t, done) {
+      const argv = ["node", "./test/bin/respawn-needed", "--harmony"];
       exec(argv.join(" "), function (err, stdout, stderr) {
         assert.strictEqual(err, null);
         assert.strictEqual(stderr, "");
-        var results = stdout.slice(0, -1).split("\n");
+        const results = stdout.slice(0, -1).split("\n");
         assert.strictEqual(results.length, 2);
         assert.strictEqual(JSON.parse(results[0]).ready, false);
         assert.strictEqual(JSON.parse(results[1]).ready, true);
@@ -157,15 +148,15 @@ describe("flaggedRespawn", function () {
       });
     });
 
-    it("should call back with the child process when ready", function (t, done) {
-      var argv = ["node", "./test/bin/callback-params", "--harmony"];
+    it("should return with the child process when ready", function (t, done) {
+      const argv = ["node", "./test/bin/respawn-needed", "--harmony"];
       exec(argv.join(" "), function (err, stdout, stderr) {
         assert.strictEqual(err, null);
         assert.strictEqual(stderr, "");
-        var results = stdout.slice(0, -1).split("\n");
+        const results = stdout.slice(0, -1).split("\n");
         assert.strictEqual(results.length, 2);
 
-        var params = JSON.parse(results[0]);
+        let params = JSON.parse(results[0]);
         assert.notStrictEqual(params.child_pid, params.process_pid);
 
         params = JSON.parse(results[1]);
@@ -174,18 +165,16 @@ describe("flaggedRespawn", function () {
       });
     });
 
-    it("should call back with own process when respawn not needed", function (t, done) {
-      var argv = ["node", "./test/bin/respawner"];
-      flaggedRespawn(flags, argv, function (ready, child) {
-        assert.strictEqual(child.pid, process.pid);
-        done();
-      });
+    it("should returns with own process when respawn not needed", function () {
+      const argv = ["node", "./test/bin/respawner"];
+      const { child } = flaggedRespawn(flags, argv);
+      assert.strictEqual(child.pid, process.pid);
     });
   });
 
   describe("force and forbid respawning", function () {
     it("forbid respawning with --no-respawning flag", function (t, done) {
-      var cmd = [
+      const cmd = [
         "node",
         path.resolve(import.meta.dirname, "bin/respawner.js"),
         "--harmony",
@@ -201,7 +190,7 @@ describe("flaggedRespawn", function () {
     });
 
     it("always forbid respawning with inner --no-respawning", function (t, done) {
-      var cmd = [
+      const cmd = [
         "node",
         path.resolve(import.meta.dirname, "bin/forbid-respawning.js"),
         "--harmony",
@@ -216,7 +205,7 @@ describe("flaggedRespawn", function () {
     });
 
     it("should force respawning with node flags (array)", function (t, done) {
-      var cmd = [
+      const cmd = [
         "node",
         path.resolve(import.meta.dirname, "bin/force-respawning.js"),
       ].join(" ");
@@ -230,7 +219,7 @@ describe("flaggedRespawn", function () {
     });
 
     it("should force respawning with node flags (string)", function (t, done) {
-      var cmd = [
+      const cmd = [
         "node",
         path.resolve(import.meta.dirname, "bin/force-respawning-string.js"),
       ].join(" ");
@@ -257,8 +246,8 @@ describe("flaggedRespawn", function () {
 
   describe("cli args which are passed to app", function () {
     it("should pass args except v8flags, forced node flags, --no-respawning when respawned", function (t, done) {
-      var script = path.resolve(import.meta.dirname, "bin/print-args.js");
-      var cmd = [
+      const script = path.resolve(import.meta.dirname, "bin/print-args.js");
+      const cmd = [
         '"' + process.argv[0] + '"',
         script,
         "aaa",
@@ -271,7 +260,7 @@ describe("flaggedRespawn", function () {
         "-V",
       ].join(" ");
 
-      var message =
+      const message =
         "Respawning!\n" +
         "cli args passed to app: " +
         [
@@ -295,8 +284,8 @@ describe("flaggedRespawn", function () {
     });
 
     it("should pass args except v8flags, forced node flags, --no-respawning when not respawned", function (t, done) {
-      var script = path.resolve(import.meta.dirname, "bin/print-args.js");
-      var cmd = [
+      const script = path.resolve(import.meta.dirname, "bin/print-args.js");
+      const cmd = [
         '"' + process.argv[0] + '"',
         script,
         "aaa",
@@ -310,7 +299,7 @@ describe("flaggedRespawn", function () {
         "--no-respawning",
       ].join(" ");
 
-      var message =
+      const message =
         "cli args passed to app: " +
         [
           process.argv[0],
@@ -335,26 +324,23 @@ describe("flaggedRespawn", function () {
 
   describe("parameter checks", function () {
     it("should throw an error when flags is nullish", function () {
-      var argv = ["node", "./test/bin/respawner"];
-      var exec = function () {};
+      const argv = ["node", "./test/bin/respawner"];
 
       assert.throws(function () {
-        flaggedRespawn(null, argv, exec);
+        flaggedRespawn(null, argv);
       });
 
       assert.throws(function () {
-        flaggedRespawn(flags, undefined, exec);
+        flaggedRespawn(flags, undefined);
       });
     });
 
-    it("will not respawn if forced flags is not string or array", function (t, done) {
-      var argv = ["node", "./test/bin/respawner"];
+    it("will not respawn if forced flags is not string or array", function () {
+      const argv = ["node", "./test/bin/respawner"];
 
-      flaggedRespawn(flags, argv, {}, function (ready, child) {
-        assert.strictEqual(ready, true);
-        assert.strictEqual(child.pid, process.pid);
-        done();
-      });
+      const { ready, child } = flaggedRespawn(flags, argv, {});
+      assert.strictEqual(ready, true);
+      assert.strictEqual(child.pid, process.pid);
     });
   });
 });

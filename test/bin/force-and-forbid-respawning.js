@@ -12,11 +12,10 @@ v8flags(function (err, flags) {
 
   var argv = process.argv.concat("--no-respawning");
 
-  flaggedRespawn(flags, argv, ["--trace-deprecation"], function (ready) {
-    if (ready) {
-      console.log("Running!");
-    } else {
-      console.log("Respawning!");
-    }
-  });
+  const { ready } = flaggedRespawn(flags, argv, ["--trace-deprecation"]);
+  if (ready) {
+    console.log("Running!");
+  } else {
+    console.log("Respawning!");
+  }
 });

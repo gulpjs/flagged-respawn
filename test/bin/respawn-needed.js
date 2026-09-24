@@ -10,12 +10,11 @@ v8flags(function (err, flags) {
     return;
   }
 
-  flaggedRespawn(flags, process.argv, function (ready, child) {
-    var result = {
-      ready: ready,
-      child_pid: child.pid,
-      process_pid: process.pid,
-    };
-    console.log(JSON.stringify(result));
-  });
+  const { ready, child } = flaggedRespawn(flags, process.argv);
+  var result = {
+    ready: ready,
+    child_pid: child.pid,
+    process_pid: process.pid,
+  };
+  console.log(JSON.stringify(result));
 });
