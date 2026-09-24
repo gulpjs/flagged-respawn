@@ -10,7 +10,9 @@
     "Blaine Bublitz <blaine.bublitz@gmail.com>"
   ],
   "funding": "https://github.com/sponsors/gulpjs",
-  "repository": "gulpjs/flagged-respawn",
+  "repository": {
+    "url": "git+https://github.com/gulpjs/flagged-respawn.git"
+  },
   "license": "MIT",
   "engines": {
     "node": ">= 22.15.0"
