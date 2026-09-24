@@ -1,23 +1,23 @@
-var reorder = require('./lib/reorder');
-var respawn = require('./lib/respawn');
-var remover = require('./lib/remover');
+var reorder = require("./lib/reorder");
+var respawn = require("./lib/respawn");
+var remover = require("./lib/remover");
 
-var FORBID_RESPAWNING_FLAG = '--no-respawning';
+var FORBID_RESPAWNING_FLAG = "--no-respawning";
 
 module.exports = function (flags, argv, forcedFlags, execute) {
   if (!flags) {
-    throw new Error('You must specify flags to respawn with.');
+    throw new Error("You must specify flags to respawn with.");
   }
   if (!argv) {
-    throw new Error('You must specify an argv array.');
+    throw new Error("You must specify an argv array.");
   }
 
-  if (typeof forcedFlags === 'function') {
+  if (typeof forcedFlags === "function") {
     execute = forcedFlags;
     forcedFlags = [];
   }
 
-  if (typeof forcedFlags === 'string') {
+  if (typeof forcedFlags === "string") {
     forcedFlags = [forcedFlags];
   }
 

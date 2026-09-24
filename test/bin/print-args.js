@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-var flaggedRespawn = require('../..');
-var v8flags = require('v8flags');
+var flaggedRespawn = require("../..");
+var v8flags = require("v8flags");
 
 v8flags(function (err, flags) {
   if (err) {
@@ -13,7 +13,7 @@ v8flags(function (err, flags) {
     flags,
     process.argv,
     [
-      '--trace-deprecation',
+      "--trace-deprecation",
       /*
     '--require',
     'v8flags',
@@ -22,10 +22,10 @@ v8flags(function (err, flags) {
     ],
     function (ready, child, args) {
       if (ready) {
-        console.log('cli args passed to app:', args.join(' '));
+        console.log("cli args passed to app:", args.join(" "));
       } else {
-        console.log('Respawning!');
+        console.log("Respawning!");
       }
-    }
+    },
   );
 });
