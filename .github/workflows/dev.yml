@@ -42,6 +42,9 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Check format
+        run: npm run format-check
+
       - name: Coveralls
         uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
