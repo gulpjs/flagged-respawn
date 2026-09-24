@@ -1,3 +1,3 @@
 var gulpConfig = require("eslint-config-gulp");
 
-module.exports = [...gulpConfig];
+module.exports = [...gulpConfig.default];
