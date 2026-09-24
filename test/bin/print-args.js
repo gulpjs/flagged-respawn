@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-var flaggedRespawn = require("../..");
-var v8flags = require("v8flags");
+import flaggedRespawn from "../../index.js";
+import v8flags from "v8flags";
 
 v8flags(function (err, flags) {
   if (err) {

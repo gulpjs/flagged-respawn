@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var flaggedRespawn = require("../../");
+import flaggedRespawn from "../../index.js";
 
 flaggedRespawn(["--harmony"], process.argv, function (ready, child) {
   if (ready) {
