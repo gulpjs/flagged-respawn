@@ -10,11 +10,10 @@ v8flags(function (err, flags) {
     return;
   }
 
-  flaggedRespawn(flags, process.argv, "--trace-deprecation", function (ready) {
-    if (ready) {
-      console.log("Running!");
-    } else {
-      console.log("Respawning!");
-    }
-  });
+  const { ready } = flaggedRespawn(flags, process.argv, "--trace-deprecation");
+  if (ready) {
+    console.log("Running!");
+  } else {
+    console.log("Respawning!");
+  }
 });

@@ -12,14 +12,13 @@ v8flags(function (err, flags) {
 
   var argv = process.argv.concat("--no-respawning");
 
-  flaggedRespawn(flags, argv, function (ready, child) {
-    if (ready) {
-      console.log("Running!");
-    } else {
-      console.log("Special flags found, respawning.");
-    }
-    if (child.pid !== process.pid) {
-      console.log("Respawned to PID: " + child.pid);
-    }
-  });
+  const { ready, child } = flaggedRespawn(flags, argv);
+  if (ready) {
+    console.log("Running!");
+  } else {
+    console.log("Special flags found, respawning.");
+  }
+  if (child.pid !== process.pid) {
+    console.log("Respawned to PID: " + child.pid);
+  }
 });

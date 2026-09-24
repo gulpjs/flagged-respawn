@@ -43,22 +43,21 @@ const flaggedRespawn = require("flagged-respawn");
 // get a list of all possible v8 flags for the running version of node
 const v8flags = require("v8flags").fetch();
 
-flaggedRespawn(v8flags, process.argv, function (ready, child) {
-  if (ready) {
-    console.log("Running!");
-    // your cli code here
-  } else {
-    console.log("Special flags found, respawning.");
-  }
-  if (process.pid !== child.pid) {
-    console.log("Respawned to PID:", child.pid);
-  }
-});
+const { ready, child, argv } = flaggedRespawn(v8flags, process.argv);
+if (ready) {
+  console.log("Running!");
+  // your cli code here
+} else {
+  console.log("Special flags found, respawning.");
+}
+if (process.pid !== child.pid) {
+  console.log("Respawned to PID:", child.pid);
+}
 ```
 
 ## API
 
-### <u>flaggedRespawn(flags, argv, [ forcedFlags, ] callback) : Void</u>
+### <u>flaggedRespawn(flags, argv, [ forcedFlags ]) : { ready, child, argv }</u>
 
 Respawns the script itself when _argv_ has special flag contained in _flags_ and/or _forcedFlags_ is not empty. Because members of _flags_ and _forcedFlags_ are passed to `node` command, each of them needs to be a node flag or a V8 flag.
 
@@ -66,28 +65,27 @@ Respawns the script itself when _argv_ has special flag contained in _flags_ and
 
 If `--no-respawning` flag is given in _argv_, this function does not respawned even if _argv_ contains members of flags or _forcedFlags_ is not empty. (This flag is also used internally to prevent from respawning more than once).
 
-#### Parameter:
+#### Parameters
 
 | Parameter     |      Type       | Description                                                                              |
 | :------------ | :-------------: | :--------------------------------------------------------------------------------------- |
 | _flags_       |      Array      | An array of node flags and V8 flags which are available when present in _argv_.          |
 | _argv_        |      Array      | Command line arguments to respawn.                                                       |
 | _forcedFlags_ | Array or String | An array of node flags or a string of a single flag and V8 flags for respawning forcely. |
-| _callback_    |    function     | A called function when not respawning or after respawned.                                |
 
-- **<u><i>callback</i>(ready, proc, argv) : Void</u>**
+#### Returns
 
-  _callback_ function is called both when respawned or not, and it can be distinguished by callback's argument: _ready_. (_ready_ indicates whether a process spawned its child process (false) or not (true), but it does not indicate whether a process is a spawned child process or not. _ready_ for a spawned child process is true.)
+An object representing the state of respawn.
 
-  _argv_ is an array of command line arguments which is respawned (when _ready_ is false) or is passed current process except flags within _flags_ and `--no-respawning` (when _ready_ is true).
+| Field   |  Type   | Description                                                          |
+| :------ | :-----: | :------------------------------------------------------------------- |
+| _ready_ | boolean | True, if not respawning and is ready to execute main function.       |
+| _child_ | object  | Child process object if respawned, otherwise current process object. |
+| _argv_  |  Array  | An array of command line arguments.                                  |
 
-  **Parameter:**
+_ready_ indicates whether a process spawned its child process (`false`) or not (`true`), but it does not indicate whether a process is a spawned child process or not. _ready_ for a spawned child process is `true`.
 
-  | Parameter |  Type   | Description                                                          |
-  | :-------- | :-----: | :------------------------------------------------------------------- |
-  | _ready_   | boolean | True, if not respawning and is ready to execute main function.       |
-  | _proc_    | object  | Child process object if respawned, otherwise current process object. |
-  | _argv_    |  Array  | An array of command line arguments.                                  |
+_argv_ is an array of command line arguments which is respawned (when _ready_ is `false`) or is passed current process except flags within _flags_ and `--no-respawning` (when _ready_ is `true`).
 
 ## License
 
