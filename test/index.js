@@ -1,8 +1,8 @@
 import assert from "node:assert";
 import { describe, it } from "node:test";
-import { exec } from "child_process";
-import os from "os";
-import path from "path";
+import { exec } from "node:child_process";
+import os from "node:os";
+import path from "node:path";
 
 import reorder from "../lib/reorder.js";
 import isV8flags from "../lib/is-v8flags.js";
