@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="http://gulpjs.com">
+  <a href="https://gulpjs.com">
     <img height="257" width="114" src="https://raw.githubusercontent.com/gulpjs/artwork/master/gulp-2x.png">
   </a>
 </p>
@@ -16,7 +16,7 @@ Say you wrote a command line tool that runs arbitrary javascript (e.g. task runn
 
 Everything is going splendidly until one day you decide to test some code that relies on a feature behind a v8 flag in node (`--harmony`, for example). Without much thought, you run `testify --harmony spec tests.js`.
 
-It doesn't work. After digging around for a bit, you realize this produces a [`process.argv`](http://nodejs.org/docs/latest/api/process.html#process_process_argv) of:
+It doesn't work. After digging around for a bit, you realize this produces a [`process.argv`](https://nodejs.org/docs/latest/api/process.html#process_process_argv) of:
 
 `['node', '/usr/local/bin/test', '--harmony', 'spec', 'tests.js']`
 
