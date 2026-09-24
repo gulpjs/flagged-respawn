@@ -1,15 +1,13 @@
-var assert = require("assert");
-var test = require("node:test");
-var describe = test.describe;
-var it = test.it;
-var exec = require("child_process").exec;
-var os = require("os");
-var path = require("path");
+import assert from "node:assert";
+import { describe, it } from "node:test";
+import { exec } from "child_process";
+import os from "os";
+import path from "path";
 
-var reorder = require("../lib/reorder");
-var isV8flags = require("../lib/is-v8flags");
-var remover = require("../lib/remover");
-var flaggedRespawn = require("../");
+import reorder from "../lib/reorder.js";
+import isV8flags from "../lib/is-v8flags.js";
+import remover from "../lib/remover.js";
+import flaggedRespawn from "../index.js";
 
 describe("flaggedRespawn", function () {
   var flags = ["--harmony", "--use-strict", "--stack-size"];
@@ -189,7 +187,7 @@ describe("flaggedRespawn", function () {
     it("forbid respawning with --no-respawning flag", function (t, done) {
       var cmd = [
         "node",
-        path.resolve(__dirname, "bin/respawner.js"),
+        path.resolve(import.meta.dirname, "bin/respawner.js"),
         "--harmony",
         "--no-respawning",
       ].join(" ");
@@ -205,7 +203,7 @@ describe("flaggedRespawn", function () {
     it("always forbid respawning with inner --no-respawning", function (t, done) {
       var cmd = [
         "node",
-        path.resolve(__dirname, "bin/forbid-respawning.js"),
+        path.resolve(import.meta.dirname, "bin/forbid-respawning.js"),
         "--harmony",
       ].join(" ");
 
@@ -220,7 +218,7 @@ describe("flaggedRespawn", function () {
     it("should force respawning with node flags (array)", function (t, done) {
       var cmd = [
         "node",
-        path.resolve(__dirname, "bin/force-respawning.js"),
+        path.resolve(import.meta.dirname, "bin/force-respawning.js"),
       ].join(" ");
 
       exec(cmd, function cb(err, stdout, stderr) {
@@ -234,7 +232,7 @@ describe("flaggedRespawn", function () {
     it("should force respawning with node flags (string)", function (t, done) {
       var cmd = [
         "node",
-        path.resolve(__dirname, "bin/force-respawning-string.js"),
+        path.resolve(import.meta.dirname, "bin/force-respawning-string.js"),
       ].join(" ");
 
       exec(cmd, function cb(err, stdout, stderr) {
@@ -259,7 +257,7 @@ describe("flaggedRespawn", function () {
 
   describe("cli args which are passed to app", function () {
     it("should pass args except v8flags, forced node flags, --no-respawning when respawned", function (t, done) {
-      var script = path.resolve(__dirname, "bin/print-args.js");
+      var script = path.resolve(import.meta.dirname, "bin/print-args.js");
       var cmd = [
         '"' + process.argv[0] + '"',
         script,
@@ -297,7 +295,7 @@ describe("flaggedRespawn", function () {
     });
 
     it("should pass args except v8flags, forced node flags, --no-respawning when not respawned", function (t, done) {
-      var script = path.resolve(__dirname, "bin/print-args.js");
+      var script = path.resolve(import.meta.dirname, "bin/print-args.js");
       var cmd = [
         '"' + process.argv[0] + '"',
         script,

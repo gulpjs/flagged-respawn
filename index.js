@@ -1,10 +1,10 @@
-var reorder = require("./lib/reorder");
-var respawn = require("./lib/respawn");
-var remover = require("./lib/remover");
+import reorder from "./lib/reorder.js";
+import respawn from "./lib/respawn.js";
+import remover from "./lib/remover.js";
 
 var FORBID_RESPAWNING_FLAG = "--no-respawning";
 
-module.exports = function (flags, argv, forcedFlags, execute) {
+export default function flaggedRespawn(flags, argv, forcedFlags, execute) {
   if (!flags) {
     throw new Error("You must specify flags to respawn with.");
   }
@@ -50,4 +50,4 @@ module.exports = function (flags, argv, forcedFlags, execute) {
     proc = respawn(reordered);
   }
   execute(ready, proc, reordered);
-};
+}
