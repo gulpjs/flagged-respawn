@@ -2,7 +2,7 @@
   "name": "flagged-respawn",
   "version": "2.0.0",
   "description": "A tool for respawning node binaries when special flags are present.",
-  "author": "Gulp Team <team@gulpjs.com> (http://gulpjs.com/)",
+  "author": "Gulp Team <team@gulpjs.com> (https://gulpjs.com/)",
   "contributors": [
     "Takayuki Sato <sttk.xslet@gmail.com>",
     "Bertrand Marron <bertrand.marron@ionisx.com>",
